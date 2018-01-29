@@ -42,14 +42,19 @@ const FilesystemStorage = {
     key: string,
     callback: (error: ?Error, result: ?string) => void
   ) =>
-    RNFetchBlob.fs.readFile(pathForKey(options.toFileName(key)), options.encoding)
-      .then(data => {
-        callback && callback(null, data)
-        if (!callback) return data
-      })
-      .catch(error => {
-        callback && callback(error)
-        if (!callback) throw error
+    RNFetchBlob.fs.exists(pathForKey(options.toFileName(key)))
+      .then(exists => {
+        if (exists) {
+          return RNFetchBlob.fs.readFile(pathForKey(options.toFileName(key)), options.encoding)
+            .then(data => {
+              callback && callback(null, data)
+              if (!callback) return data
+            })
+            .catch(error => {
+              callback && callback(error)
+              if (!callback) throw error
+            })
+        }
       }),
 
   removeItem: (
