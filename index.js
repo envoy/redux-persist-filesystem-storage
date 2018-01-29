@@ -61,11 +61,16 @@ const FilesystemStorage = {
     key: string,
     callback: (error: ?Error) => void,
   ) =>
-    RNFetchBlob.fs.unlink(pathForKey(options.toFileName(key)))
-      .then(() => callback && callback())
-      .catch(error => {
-        callback && callback(error)
-        if (!callback) throw error
+    RNFetchBlob.fs.exists(pathForKey(options.toFileName(key)))
+      .then(exists => {
+        if (exists) {
+          RNFetchBlob.fs.unlink(pathForKey(options.toFileName(key)))
+            .then(() => callback && callback())
+            .catch(error => {
+              callback && callback(error)
+              if (!callback) throw error
+            })
+        }
       }),
 
   getAllKeys: (
