@@ -28,9 +28,15 @@ const FilesystemStorage = {
     value: string,
     callback?: (error: ?Error) => void,
   ) =>
-    RNFetchBlob.fs.writeFile(pathForKey(key), value, options.encoding)
-      .then(() => callback && callback())
-      .catch(error => callback && callback(error)),
+    RNFetchBlob.fs.exists(options.storagePath)
+      .then(exists => 
+        exists ? true : RNFetchBlob.fs.mkdir(options.storagePath)
+      )
+      .then(() => 
+        RNFetchBlob.fs.writeFile(pathForKey(key), value, options.encoding)
+          .then(() => callback && callback())
+          .catch(error => callback && callback(error))
+      ),
 
   getItem: (
     key: string,
